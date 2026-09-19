@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="card">
-        <h1>Application déployée avec succès !</h1>
+        <h1>Application déployée avec succès bayano</h1>
         <p>Ce fichier JSP est exécuté directement par Apache Tomcat.</p>
         <hr>
         <p><strong>Date du serveur :</strong> <%= new java.util.Date() %></p>
