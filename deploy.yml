@@ -5,8 +5,8 @@
   tasks:
     - name: Transfert du fichier WAR vers le répertoire webapps de Tomcat
       ansible.builtin.copy:
-        src: target/app.war
-        dest: /opt/tomcat/webapps/app.war
+        src: jenkins-demo-app-1.0.0.war
+        dest: /opt/tomcat/webapps/jenkins-demo-app-1.0.0.war
         owner: tomcat
         group: tomcat
         mode: '0644'
