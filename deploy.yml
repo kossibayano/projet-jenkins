@@ -1,0 +1,18 @@
+---
+- name: Déploiement de l'application WAR sur les serveurs Tomcat
+  hosts: webservers
+  gather_facts: no
+  tasks:
+    - name: Transfert du fichier WAR vers le répertoire webapps de Tomcat
+      ansible.builtin.copy:
+        src: target/app.war
+        dest: /opt/tomcat/webapps/app.war
+        owner: tomcat
+        group: tomcat
+        mode: '0644'
+
+    - name: Redémarrage du service Tomcat (optionnel si auto-deploy actif)
+      ansible.builtin.systemd:
+        name: tomcat
+        state: restarted
+      become: yes
