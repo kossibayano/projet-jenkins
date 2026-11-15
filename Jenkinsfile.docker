@@ -1,0 +1,54 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE = "jeremiebayano/projet-jenkins"
+    TAG   = "${env.BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Build image') {
+      steps {
+        sh 'docker build -t $IMAGE:$TAG -t $IMAGE:latest .'
+      }
+    }
+
+    stage('Test rapide') {
+      steps {
+        sh '''
+          docker rm -f test-jsp || true
+          docker run -d --name test-jsp -p 8085:8080 $IMAGE:$TAG
+          for i in $(seq 1 20); do
+            curl -fs http://localhost:8085/ | grep -q "Application déployée" && exit 0
+            sleep 3
+          done
+          docker logs test-jsp
+          exit 1
+        '''
+      }
+      post {
+        always { sh 'docker rm -f test-jsp || true' }
+      }
+    }
+
+    stage('Push Docker Hub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                          usernameVariable: 'DH_USER',
+                                          passwordVariable: 'DH_PASS')]) {
+          sh 'echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin'
+          sh 'docker push $IMAGE:$TAG'
+          sh 'docker push $IMAGE:latest'
+        }
+      }
+    }
+  }
+
+  post {
+    always { sh 'docker logout || true' }
+  }
+}
